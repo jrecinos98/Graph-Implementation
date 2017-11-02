@@ -79,8 +79,8 @@ namespace main_savitch_15
     {
     public:
         // CONSTRUCTOR
-        graph( );
-	graph(size_t initial_allocation);
+      // graph( );
+	graph(size_t initial_allocation= 10);
 	graph(const graph &source);
 	~graph();
        	void resize(size_t new_allocation);

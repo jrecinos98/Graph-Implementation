@@ -14,65 +14,82 @@
 #include <cassert>    // Provides assert
 #include <cstdlib>    // Provides size_t
 #include <set>        // Provides set
+#include <iostream>
 using std::size_t;
 
 namespace main_savitch_15
 {
-    template <class Item>
-    graph<Item>::graph ( ) : many_vertices(0) {
-        // intentionally empty
-    }
-
+   
     template <class Item>
     graph<Item>::graph(size_t initial_allocation){
       allocated= initial_allocation;
       edges= new bool*[allocated];
+      int count=0;
       for (size_t i=0; i< allocated; i++){
+	count++;
 	edges[i]= new bool [allocated];
-      }
-      for (size_t i=0; i<allocated; i++){
 	for (size_t j=0; j < allocated; j++){
 	  edges[i][j]=false;
 	}
       }
+     
       many_vertices= 0;
       labels= new Item[allocated];
+    
     }
   
    
-    template <class Item>
+    template <class Item> 
     graph<Item>::graph(const graph &source){
-      if (source.size() != size()){
-	bool **temp= new bool*[source.size()];
-	for (size_t i=0; i < source.size();++i){
-	  temp[i]= new bool [source.size()];
-	  delete [] edges[i];
-	}
-	edges=temp;
-	allocated= source.size();
-      }
-	
-      for (size_t i=0; i < allocated; i++){
-	  for (size_t j=0; j < allocated;  ++j){
-	    edges[i][j]= source.is_edge(i,j);}
-      }
-      for (size_t i=0; i < allocated; ++i){
-	labels[i]= source[i];
+      allocated= source.size();
+      labels= new Item[allocated];
+      edges= new bool*[allocated];
+      for (size_t i=0; i < allocated;++i){
+	 edges[i]=new bool [allocated];
+	 labels[i]= source[i];
+	 for (size_t j=0; j < allocated;++j){
+	    edges[i][j]= source.is_edge(i,j);
+	  }
       }
       many_vertices= source.size();
     }
       
       
-  //template <class Item>
-    // graph<Item>& graph<Item>::operator = (const graph &source){return}
+    template <class Item>
+    graph<Item>& graph<Item>::operator = (const graph &source){
+      if (this == &source){
+	return *this;
+      }
+      size_t new_size= source.size();
+      bool **temp= new bool*[new_size];
+      Item *temp2= new Item [new_size];                                                      
+      for (size_t i=0; i < new_size;++i){                                                    
+          temp[i]= new bool [new_size];
+	  temp2[i]= source[i];
+	  for (size_t j=0; j < new_size;++j){
+	    temp[i][j]=source.is_edge(i,j);
+	   }
+	   if ( i < allocated)
+	     delete [] edges[i];
+      }
+      delete [] edges;
+      delete [] labels;
+      allocated=new_size;
+      edges=temp;
+      labels= temp2;
+      many_vertices= source.size();
+      return *this;
+    }
+      
       
     template <class Item>
     graph<Item>::~graph(){
       for(size_t i=0; i < allocated; i++){
-	//for (int j=0; j < allocated; j++)
 	delete [] edges[i];
       }
       delete [] edges;
+      delete [] labels;
+     
     }
 
     template <class Item>
@@ -93,6 +110,7 @@ namespace main_savitch_15
 	}
 	delete [] labels;
 	labels= temp2;
+	//To increase efficiency perform this in the previous loop.
 	for (size_t i=allocated; i<  new_allocation; ++i){
 	  for (size_t j=0; j < new_allocation;  ++j){
 	    temp[i][j]= false;
@@ -100,6 +118,7 @@ namespace main_savitch_15
 	}
 	edges=temp;
 	allocated= new_allocation;
+	//many_vertices=allocated;
 	
       }
     }
@@ -122,7 +141,7 @@ namespace main_savitch_15
         size_t new_vertex_number;
         size_t other_number;
 
-        if (size( ) < allocated){
+        if (size()== allocated){
 	  resize(allocated*2);
 	}
         new_vertex_number = many_vertices;
@@ -133,6 +152,7 @@ namespace main_savitch_15
             edges[new_vertex_number][other_number] = false;
         }
         labels[new_vertex_number] = label;
+
     }
 
   
